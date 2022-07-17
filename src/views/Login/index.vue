@@ -1,15 +1,16 @@
 <template>
   <div class="login-container">
     <!-- 头部区域 -->
-    <van-nav-bar title="账号登录" left-arrow />
+    <van-nav-bar title="账号登录" left-arrow @click-left="backToPrePage" />
     <!-- 输入账号密码 -->
-    <van-form class="from">
+    <van-form class="from" ref="form" @submit="login">
       <van-field
         class="int"
         v-model="username"
         name="username"
         placeholder="请输入账号"
-        :rules="[{ required: true }]" />
+        :rules="[{ required: true }]"
+      />
       <van-field
         class="int"
         v-model="password"
@@ -17,17 +18,14 @@
         type="password"
         placeholder="请输入密码"
         :rules="[{ required: true }]"
-    /></van-form>
-    <div style="margin: 16px">
-      <van-button
-        block
-        type="info"
-        native-type="submit"
-        @click="login"
-        class="login-btn"
-        >登录</van-button
-      >
-    </div>
+      />
+      <div style="margin: 16px">
+        <van-button block type="info" native-type="submit" class="login-btn"
+          >登录</van-button
+        >
+      </div></van-form
+    >
+
     <p class="zhuce">还没有账号，去注册~</p>
   </div>
 </template>
@@ -43,23 +41,33 @@ export default {
     }
   },
   methods: {
+    // 返回上一页
+    backToPrePage() {
+      this.$router.back()
+    },
     async login() {
-      const res = await login(this.username, this.password)
-      if (res.data.status === 200) {
-        this.$toast({
-          message: '登录成功',
-          icon: 'passed'
-        })
-      } else if (res.data.status === 400) {
-        this.$toast({
-          message: '账号或密码错误',
-          icon: 'close'
-        })
-      } else {
-        this.$toast({
-          message: '服务器错误',
-          icon: 'close'
-        })
+      this.$toast.loading({
+        message: '登录ing',
+        forbidClick: true
+      })
+      // try {
+      //   const res = await login(this.username, this.password)
+      //   const { data } = res
+      //   this.$store.commit('setUser', data.body)
+      //   this.$router.push('/layout/my')
+      // } catch (error) {
+      //   this.$toast.fail('账号登录失败')
+      // }
+      try {
+        const res = await login(this.username, this.password)
+        // 存储对象
+        this.$store.commit('setUser', res.data.body)
+        this.$toast.success('登录成功')
+        // 跳转页面
+        this.$router.push('/layout/my')
+      } catch (error) {
+        console.log(error)
+        this.$toast.fail('账号登录失败')
       }
     }
   }
@@ -77,7 +85,7 @@ export default {
 :deep(.van-nav-bar .van-icon) {
   color: #fff;
 }
-.from {
+.form {
   padding-top: 15px;
   padding-bottom: 20px;
 }
