@@ -30,6 +30,10 @@ const routes = [
         component: () => import('@/views/My')
       }
     ]
+  },
+  {
+    path: '/favorate',
+    component: () => import('@/views/Favorate')
   }
 ]
 
